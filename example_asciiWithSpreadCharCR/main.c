@@ -30,18 +30,19 @@ int main(void)
     pthread_t thread_id; 
     pthread_create(&thread_id, NULL, thread_processBuffer, NULL); 
 
+    buffer.overwriteMode = false;
     cb_clear(&buffer);      // init with zero values
 
-    /* create message */
-    char message[] = "AT+CEREG?\nAT+CMEE=1\nAT+CONFIG\nAT+00000000\n"
-    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n";
+    // /* create message */
+    // char message[] = "AT+CEREG?\nAT+CMEE=1\nAT+CONFIG\nAT+00000000\n"
+    // "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    // "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"
+    // "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n";
 
-    /* put the message to buffer, every single byte extra */
-    for (int i = 0; i < strlen(message); i++) {
-    	cb_write(&buffer, (uint8_t*)&message[i], 1);
-    }
+    // /* put the message to buffer, every single byte extra */
+    // for (int i = 0; i < strlen(message); i++) {
+    // 	cb_write(&buffer, (uint8_t*)&message[i], 1);
+    // }
 
     // printf("Number of bytes in the buffer: %u\n", buffer.count);
 
@@ -61,14 +62,15 @@ int main(void)
 void processBuffer(bufferRing_t* buffer)
 {
 	uint8_t cmd[BUFFER_SIZE];
-	uint8_t cmd_len;
+	int cmd_len;
 
 	do {
         /* get the first command in the buffer */
 		cmd_len = cb_readTillCR(cmd, buffer);
         /* process the command */
-		if(cmd_len)
+		if(cmd_len != -1) {
 			processCmd(cmd, cmd_len);
+        }
 	} while (cmd_len);
 }
 ////////////////////////////////////////////////////////////

@@ -5,13 +5,13 @@ FLAGS = -pthread
 TARGET = bin
 
 C_INCLUDES = \
--I../../ByteArray/ \
+-I../../c_ByteArray/ \
 -I../
 
 C_Sources = \
 main.c \
 ../buffer_ring.c \
-../../ByteArray/ByteArray.c \
+../../c_ByteArray/ByteArray.c \
 
 $(TARGET): *.c
 	$(CC) $(FLAGS) $(C_INCLUDES) $(C_Sources) -o $(TARGET)

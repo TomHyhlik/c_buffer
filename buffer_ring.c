@@ -184,7 +184,6 @@ int cb_readTillCR(void* destination, bufferRing_t* buffer)
 			}
 			dest[cmdSize] = '\0';
 
-			HAL_Delay(1);
 			cb_rmCR_atBegin(buffer);
 
 			return cmdSize;

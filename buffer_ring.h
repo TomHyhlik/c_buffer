@@ -25,6 +25,9 @@ bool cb_writeByte(bufferRing_t* buffer, uint8_t byteToBeWritten);
 uint8_t cb_readAll(void* destination, bufferRing_t* cb);
 uint8_t cb_readByte(bufferRing_t* buffer);
 int cb_readTillCR(void* destination, bufferRing_t* buffer);
+
+void cb_rmCR_atBegin(bufferRing_t* buffer);
+
 void cb_cpy(void* destination, bufferRing_t* buffer, uint8_t bufferPtr, uint8_t size);
 void cb_rm(bufferRing_t* buffer, uint8_t bufferPtr, uint8_t size);
 
