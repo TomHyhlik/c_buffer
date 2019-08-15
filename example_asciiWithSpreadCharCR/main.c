@@ -31,7 +31,7 @@ int main(void)
     pthread_create(&thread_id, NULL, thread_processBuffer, NULL); 
 
     buffer.overwriteMode = false;
-    cb_clear(&buffer);      // init with zero values
+    buffer_clear(&buffer);      // init with zero values
 
     // /* create message */
     // char message[] = "AT+CEREG?\nAT+CMEE=1\nAT+CONFIG\nAT+00000000\n"
@@ -41,7 +41,7 @@ int main(void)
 
     // /* put the message to buffer, every single byte extra */
     // for (int i = 0; i < strlen(message); i++) {
-    // 	cb_write(&buffer, (uint8_t*)&message[i], 1);
+    // 	buffer_write(&buffer, (uint8_t*)&message[i], 1);
     // }
 
     // printf("Number of bytes in the buffer: %u\n", buffer.count);
@@ -52,7 +52,7 @@ int main(void)
 
         /* get data from the keyboard input and write it to the buffer */
         char inputChar = getchar();
-        cb_write(&buffer, (uint8_t*)&inputChar, 1);
+        buffer_write(&buffer, (uint8_t*)&inputChar, 1);
 
     ////////////////////////////////////
     }
@@ -66,7 +66,7 @@ void processBuffer(bufferRing_t* buffer)
 
 	do {
         /* get the first command in the buffer */
-		cmd_len = cb_readTillCR(cmd, buffer);
+		cmd_len = buffer_readTillCR(cmd, buffer);
         /* process the command */
 		if(cmd_len != -1) {
 			processCmd(cmd, cmd_len);

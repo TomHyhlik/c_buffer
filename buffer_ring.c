@@ -15,17 +15,17 @@
 /*
  * @brief initialize the buffer with zero values 
  */
-void cb_clear(bufferRing_t* buffer)
+void buffer_clear(bufferRing_t* buffer)
 {
     memset(buffer->data, 0, BUFFER_SIZE);
     buffer->head = 0;
     buffer->tail = 0;
 }
 ///////////////////////////////////////////////////////////
-bool cb_writeByte(bufferRing_t* buffer, uint8_t byteToBeWritten)
+bool buffer_writeByte(bufferRing_t* buffer, uint8_t byteToBeWritten)
 {
 	if (buffer->overwriteMode == false) {
-		if (cb_isFull(buffer)) {
+		if (buffer_isFull(buffer)) {
 			printf("ERROR: Failed to write to buffer, it's full\r\n");
 			return false;
 		}
@@ -40,11 +40,11 @@ bool cb_writeByte(bufferRing_t* buffer, uint8_t byteToBeWritten)
  * @brief write data to the buffer
  * @return false if the buffer is full
  */
-bool cb_write(bufferRing_t* buffer, uint8_t* data, int data_len)
+bool buffer_write(bufferRing_t* buffer, uint8_t* data, int data_len)
 {
 	if (buffer->overwriteMode == false) {
 		/* check if there is enough free space in the buffer */
-		if ((int)cb_avaiolableSpace(buffer) < data_len) {
+		if ((int)buffer_avaiolableSpace(buffer) < data_len) {
 			printf("ERROR: write to buffer, not enough space\r\n");
 			return false;
 		}
@@ -59,7 +59,7 @@ bool cb_write(bufferRing_t* buffer, uint8_t* data, int data_len)
 /* 
  * @brief returns the number of bytes in the buffer
  */
-uint8_t cb_writtenBytesCnt(bufferRing_t* buffer)
+uint8_t buffer_writtenBytesCnt(bufferRing_t* buffer)
 {
 	int writtenBytesCnt;
 	if (buffer->tail >= buffer->head) {
@@ -73,17 +73,17 @@ uint8_t cb_writtenBytesCnt(bufferRing_t* buffer)
 /* 
  * @brief returns available space in the buffer
  */
-uint8_t cb_avaiolableSpace(bufferRing_t* buffer)
+uint8_t buffer_avaiolableSpace(bufferRing_t* buffer)
 {
-	return (BUFFER_SIZE - cb_writtenBytesCnt(buffer) - 1);
+	return (BUFFER_SIZE - buffer_writtenBytesCnt(buffer) - 1);
 }
 ///////////////////////////////////////////////////////////
-bool cb_isEmpty(bufferRing_t* buffer)
+bool buffer_isEmpty(bufferRing_t* buffer)
 {
 	return (buffer->head == buffer->tail);
 }
 ///////////////////////////////////////////////////////////
-bool cb_isFull(bufferRing_t* buffer)
+bool buffer_isFull(bufferRing_t* buffer)
 {
 	uint8_t tail_new = buffer->tail;
 	tail_new += 1;
@@ -95,9 +95,9 @@ bool cb_isFull(bufferRing_t* buffer)
  * @param destination must hav at least size as BUFFER_SIZE
  * @return number of bytes that were loaded into the destination
  */
-uint8_t cb_readAll(void* destination, bufferRing_t* buffer)
+uint8_t buffer_readAll(void* destination, bufferRing_t* buffer)
 {
-	if (cb_isEmpty(buffer))
+	if (buffer_isEmpty(buffer))
 		return 0;
 
    uint8_t *dest = (uint8_t *)destination;
@@ -114,9 +114,9 @@ uint8_t cb_readAll(void* destination, bufferRing_t* buffer)
  * @brief read single byte from the buffer and removes it
  * 	in the buffer
  */
-uint8_t cb_readByte(bufferRing_t* buffer)
+uint8_t buffer_readByte(bufferRing_t* buffer)
 {
-	if (cb_isEmpty(buffer))
+	if (buffer_isEmpty(buffer))
 		return 0;
 
 	uint8_t outputByte = buffer->data[buffer->head];
@@ -125,7 +125,7 @@ uint8_t cb_readByte(bufferRing_t* buffer)
 	return outputByte;
 }
 ///////////////////////////////////////////////////////////
-void cb_cpy(void* destination, bufferRing_t* buffer, uint8_t bufferPtr, uint8_t size)
+void buffer_cpy(void* destination, bufferRing_t* buffer, uint8_t bufferPtr, uint8_t size)
 {
    uint8_t *dest = (uint8_t *)destination;
 
@@ -134,7 +134,7 @@ void cb_cpy(void* destination, bufferRing_t* buffer, uint8_t bufferPtr, uint8_t 
 	}
 }
 ///////////////////////////////////////////////////////////
-void cb_rm(bufferRing_t* buffer, uint8_t bufferPtr, uint8_t size)
+void buffer_rm(bufferRing_t* buffer, uint8_t bufferPtr, uint8_t size)
 {
 	for (; size != 0; size--, bufferPtr++) {
 		buffer->data[bufferPtr] = 0;
@@ -152,14 +152,14 @@ void cb_rm(bufferRing_t* buffer, uint8_t bufferPtr, uint8_t size)
  * @return the size of cmd that was red from the buffer, 
  * 			if no split factor found, return -1
  */
-int cb_readTillCR(void* destination, bufferRing_t* buffer)
+int buffer_readTillCR(void* destination, bufferRing_t* buffer)
 {
 	if (buffer->overwriteMode) {
 		printf("ERROR: \r\n");
 		return -1;
 	}
 
-	if (cb_isEmpty(buffer)){
+	if (buffer_isEmpty(buffer)){
 		return -1;
 	}
 
@@ -180,18 +180,18 @@ int cb_readTillCR(void* destination, bufferRing_t* buffer)
 
 			/* feed the buffer data to the dest (destination */
 			for (int i = 0; i < cmdSize; i++) {
-				dest[i] = cb_readByte(buffer);
+				dest[i] = buffer_readByte(buffer);
 			}
 			dest[cmdSize] = '\0';
 
-			cb_rmCR_atBegin(buffer);
+			buffer_rmCR_atBegin(buffer);
 
 			return cmdSize;
 	   }
    }
    /* if the buffer is full and no splitting byte was found, clear the buffer */
-   if (cb_isFull(buffer)){
-	   cb_clear(buffer);
+   if (buffer_isFull(buffer)){
+	   buffer_clear(buffer);
    }
    return -1;
 }
@@ -200,14 +200,14 @@ int cb_readTillCR(void* destination, bufferRing_t* buffer)
  * @brief remove all spreading factors '\r' or '\n' at the beginning
  * 		of the buffer
  */
-void cb_rmCR_atBegin(bufferRing_t* buffer)
+void buffer_rmCR_atBegin(bufferRing_t* buffer)
 {
-	if (cb_isEmpty(buffer))
+	if (buffer_isEmpty(buffer))
 		return;
 
 
 		while (isCR(buffer->data[buffer->head])) {
-			cb_readByte(buffer);	// remove byte from buffer
+			buffer_readByte(buffer);	// remove byte from buffer
 		}
 }
 
@@ -217,7 +217,7 @@ bool isCR(uint8_t byte)
 	return (byte == '\r' || byte == '\n');
 }
 ///////////////////////////////////////////////////////////
-void cb_print(bufferRing_t* buffer)
+void buffer_print(bufferRing_t* buffer)
 {
 	printf("BUFFERCONTENT: ");
 	for (uint8_t ptr = buffer->head; ptr != buffer->tail; ptr++)
