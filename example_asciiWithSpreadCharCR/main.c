@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -12,6 +13,7 @@
 #include "ByteArray.h"
 #include "buffer_ring.h"
 
+#define CMD_QUIT            "quit"
 
 ////////////////////////////////////////////////////////////
 bufferRing_t buffer;
@@ -48,16 +50,27 @@ int main(void)
 
     while(1)
     {
-    //////////////////////////////////// MAIN LOOP
-
-        /* get data from the keyboard input and write it to the buffer */
-        char inputChar = getchar();
-        buffer_write(&buffer, (uint8_t*)&inputChar, 1);
-
-    ////////////////////////////////////
+        processBuffer(&buffer);
     }
     return 0;
 }
+
+////////////////////////////////////////////////////////////
+/*
+ * @brief do something with the command...
+ */
+void processCmd(uint8_t* data, uint8_t data_len)
+{
+	pAscii_tit("Received: ", data, data_len);
+
+    if (data_len > 0) {
+        if (arraysEqual(data, (uint8_t*)CMD_QUIT, data_len)) {
+            printf("Quitting...\n");
+            exit(0);
+        }
+    }
+}
+
 ////////////////////////////////////////////////////////////
 void processBuffer(bufferRing_t* buffer)
 {
@@ -75,21 +88,15 @@ void processBuffer(bufferRing_t* buffer)
 }
 ////////////////////////////////////////////////////////////
 /*
- * @brief do something with the command... implement as you wish.
- */
-void processCmd(uint8_t* data, uint8_t data_len)
-{
-	// pHex_nl(data, data_len);
-	pAscii_tit("CMD: ", data, data_len);
-}
-////////////////////////////////////////////////////////////
-/*
- * @brief continuous processing of the buffer
+ * @brief continuous receiving data from the terminal
+ *                  and adding it to the buffer
  */
 void* thread_processBuffer(void *vargp)
 {
-    while (1) {
-        processBuffer(&buffer);
+    while (1) 
+    {
+        char inputChar = getchar();
+        buffer_write(&buffer, (uint8_t*)&inputChar, 1);
     }
 }
 ////////////////////////////////////////////////////////////
