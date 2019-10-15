@@ -35,19 +35,6 @@ int main(void)
     buffer.overwriteMode = false;
     buffer_clear(&buffer);      // init with zero values
 
-    // /* create message */
-    // char message[] = "AT+CEREG?\nAT+CMEE=1\nAT+CONFIG\nAT+00000000\n"
-    // "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    // "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"
-    // "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n";
-
-    // /* put the message to buffer, every single byte extra */
-    // for (int i = 0; i < strlen(message); i++) {
-    // 	buffer_write(&buffer, (uint8_t*)&message[i], 1);
-    // }
-
-    // printf("Number of bytes in the buffer: %u\n", buffer.count);
-
     while(1)
     {
         processBuffer(&buffer);
